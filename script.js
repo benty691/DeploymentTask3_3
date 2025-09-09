@@ -1,16 +1,7 @@
-// Basic AFL Ladder Script
-
-/**
- * Load AFL ladder from the API
- */
 async function loadLadder() {
   const contentEl = document.getElementById("content");
 
   try {
-    // Show loading message
-    contentEl.innerHTML = '<div class="loading">Loading AFL ladder...</div>';
-
-    // Fetch ladder data from API
     const response = await fetch("api/ladder.php");
     const data = await response.json();
 
@@ -18,7 +9,6 @@ async function loadLadder() {
       throw new Error(data.message || "Failed to load ladder");
     }
 
-    // Display the ladder
     displayLadder(data.data);
   } catch (error) {
     console.error("Error loading ladder:", error);
@@ -26,9 +16,6 @@ async function loadLadder() {
   }
 }
 
-/**
- * Display the AFL ladder in a table
- */
 function displayLadder(standings) {
   const contentEl = document.getElementById("content");
 
@@ -90,7 +77,4 @@ function displayLadder(standings) {
 }
 
 // Load ladder when page loads
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("AFL Ladder loaded");
-  loadLadder();
-});
+document.addEventListener("DOMContentLoaded", loadLadder);
