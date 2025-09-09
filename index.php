@@ -13,8 +13,6 @@
         <div class="loading">Loading AFL ladder...</div>
     </div>
 
-    <script>
-        src="script.js"
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
