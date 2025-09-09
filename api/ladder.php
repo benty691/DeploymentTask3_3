@@ -5,8 +5,9 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
 try {
-    // Squiggle API endpoint for AFL ladder
-    $apiUrl = 'https://api.squiggle.com.au/?q=ladder';
+    // Squiggle API endpoint for AFL standings (actual ladder)
+    // Use 'standings' for actual ladder, not 'ladder' which returns predictions
+    $apiUrl = 'https://api.squiggle.com.au/?q=standings';
     
     // Initialize cURL
     $ch = curl_init();
@@ -15,6 +16,7 @@ try {
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_USERAGENT, 'AFL-Information-Hub/1.0');
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -39,16 +41,20 @@ try {
         throw new Exception('Invalid JSON response: ' . json_last_error_msg());
     }
     
-    // Check if we have ladder data
-    if (!isset($data['ladder']) || !is_array($data['ladder'])) {
-        throw new Exception('No ladder data available');
+    // Check if we have standings data
+    if (!isset($data['standings']) || !is_array($data['standings'])) {
+        // Log the actual response structure for debugging
+        error_log('Squiggle API response: ' . substr($response, 0, 500));
+        throw new Exception('No standings data available');
     }
     
-    // Return the ladder data
+    // Return the standings data
     echo json_encode([
         'success' => true,
-        'data' => $data['ladder'],
-        'timestamp' => date('Y-m-d H:i:s')
+        'data' => $data['standings'],
+        'count' => count($data['standings']),
+        'timestamp' => date('Y-m-d H:i:s'),
+        'api_endpoint' => $apiUrl
     ]);
     
 } catch (Exception $e) {
@@ -61,7 +67,8 @@ try {
         'success' => false,
         'error' => 'Failed to fetch AFL ladder data',
         'message' => $e->getMessage(),
-        'timestamp' => date('Y-m-d H:i:s')
+        'timestamp' => date('Y-m-d H:i:s'),
+        'api_endpoint' => $apiUrl ?? 'undefined'
     ]);
 }
 ?>
